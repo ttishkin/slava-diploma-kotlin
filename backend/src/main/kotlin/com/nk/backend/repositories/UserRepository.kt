@@ -38,24 +38,11 @@ object UserRepository {
     }
 
     fun updatePoints(userId: Int, delta: Int) = transaction {
-        // points = MAX(0, points + delta)
-        exec(
-            "UPDATE users SET points = MAX(0, points + ?) WHERE id = ?",
-            listOf(
-                org.jetbrains.exposed.sql.statements.api.ExposedBlob::class to delta,
-                org.jetbrains.exposed.sql.statements.api.ExposedBlob::class to userId
-            )
-        )
-        // Альтернатива через Exposed:
+        val current = Users.selectAll().where { Users.id eq userId }
+            .first()[Users.points]
+        val newPoints = maxOf(0, current + delta)
         Users.update({ Users.id eq userId }) {
-            it[points] = coalesce(
-                Expression.build {
-                    case()
-                        .When(Users.points + intLiteral(delta) greaterEq intLiteral(0), Users.points + intLiteral(delta))
-                        .Else(intLiteral(0))
-                },
-                intLiteral(0)
-            )
+            it[points] = newPoints
         }
     }
 
