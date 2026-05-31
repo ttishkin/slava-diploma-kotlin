@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /Users/mykytatishkin/Desktop/slava-diploma/nevsky-konditer/client/js/**/*.js)",
+      "Bash(grep -E \"\\\\.js$\")"
+    ]
+  }
+}

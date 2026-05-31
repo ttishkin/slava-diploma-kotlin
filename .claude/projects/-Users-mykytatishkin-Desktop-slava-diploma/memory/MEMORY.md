@@ -1,0 +1,3 @@
+- [User profile](user_profile.md) — diploma student, Kotlin/Android native developer
+- [Project stack](project_stack.md) — Kotlin Ktor backend + Android Jetpack Compose, migrating from JS PWA
+- [Dev preferences](feedback_dev_style.md) — Russian comments/commits, full feature parity, stability over speed
