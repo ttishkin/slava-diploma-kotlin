@@ -8,7 +8,8 @@
       "Bash(gradle --version)",
       "Bash(curl -sL https://raw.githubusercontent.com/gradle/gradle/v8.11.1/gradlew -o gradlew)",
       "Bash(curl -sL https://raw.githubusercontent.com/gradle/gradle/v8.11.1/gradlew.bat -o gradlew.bat)",
-      "Bash(chmod +x gradlew)"
+      "Bash(chmod +x gradlew)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/gradle/gradle/v8.11.1/gradle/wrapper/gradle-wrapper.jar\" -o gradle/wrapper/gradle-wrapper.jar)"
     ]
   }
 }
