@@ -12,7 +12,9 @@
       "Bash(curl -sL \"https://raw.githubusercontent.com/gradle/gradle/v8.11.1/gradle/wrapper/gradle-wrapper.jar\" -o gradle/wrapper/gradle-wrapper.jar)",
       "Bash(./gradlew compileKotlin)",
       "Bash(/usr/libexec/java_home:*)",
-      "Bash(JAVA_HOME=$\\(/usr/libexec/java_home -v 21\\) ./gradlew compileKotlin)"
+      "Bash(JAVA_HOME=$\\(/usr/libexec/java_home -v 21\\) ./gradlew compileKotlin)",
+      "Bash(timeout 20 ./gradlew run)",
+      "Bash(gtimeout 20 ./gradlew run)"
     ]
   }
 }

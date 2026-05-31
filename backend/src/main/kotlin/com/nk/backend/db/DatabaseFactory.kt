@@ -17,12 +17,13 @@ object DatabaseFactory {
         // Создаём папку если нет
         File(dbPath).parentFile?.mkdirs()
 
-        Database.connect("jdbc:sqlite:$dbPath", driver = "org.sqlite.JDBC")
+        // foreign_keys и journal_mode через параметры URL (до транзакции)
+        Database.connect(
+            "jdbc:sqlite:$dbPath?journal_mode=WAL&foreign_keys=ON",
+            driver = "org.sqlite.JDBC"
+        )
 
         transaction {
-            // Включаем foreign keys для SQLite
-            exec("PRAGMA foreign_keys = ON;")
-            exec("PRAGMA journal_mode = WAL;")
 
             // Создаём таблицы
             SchemaUtils.create(
