@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"font-size\\\\|font-weight\\\\|padding\\\\|height\\\\|width\\\\|radius\\\\|gap\\\\|margin\" /Users/mykytatishkin/Desktop/nevsky-konditer/client/styles/*.css)",
+      "Bash(./gradlew assembleDebug)",
+      "Bash(find .:*)",
+      "Bash(./gradlew build:*)",
+      "Bash(find:*)"
+    ]
+  }
+}
