@@ -305,6 +305,63 @@ data class DailySaleDto(
     val revenue: Int
 )
 
+// === Админ: CRUD запросы ===
+
+@Serializable
+data class CreateProductRequest(
+    val name: String,
+    val categoryId: Int,
+    val kcal: Int,
+    val protein: Double,
+    val fat: Double,
+    val carb: Double,
+    val grams: Int,
+    val price: Int,
+    val sostav: String? = null,
+    val benefit: String? = null,
+    val isHit: Boolean = false,
+    val isNovelty: Boolean = false,
+    val imageUrl: String? = null,
+    val tags: List<String> = emptyList()
+)
+
+@Serializable
+data class UpdateProductRequest(
+    val name: String? = null,
+    val categoryId: Int? = null,
+    val kcal: Int? = null,
+    val protein: Double? = null,
+    val fat: Double? = null,
+    val carb: Double? = null,
+    val grams: Int? = null,
+    val price: Int? = null,
+    val sostav: String? = null,
+    val benefit: String? = null,
+    val isHit: Boolean? = null,
+    val isNovelty: Boolean? = null,
+    val imageUrl: String? = null,
+    val tags: List<String>? = null
+)
+
+@Serializable
+data class CreateCategoryRequest(
+    val name: String,
+    val color: String,
+    val glyph: String
+)
+
+@Serializable
+data class UpdateCategoryRequest(
+    val name: String? = null,
+    val color: String? = null,
+    val glyph: String? = null
+)
+
+@Serializable
+data class UpdateUserRoleRequest(
+    val role: String
+)
+
 // === Общие ===
 
 @Serializable

@@ -1,6 +1,7 @@
 package com.nk.app.data.local
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -18,6 +19,7 @@ class TokenStore @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val tokenKey = stringPreferencesKey("jwt_token")
+    private val onboardedKey = booleanPreferencesKey("onboarded")
 
     val token: Flow<String?> = context.dataStore.data.map { it[tokenKey] }
 
@@ -29,5 +31,13 @@ class TokenStore @Inject constructor(
 
     suspend fun clear() {
         context.dataStore.edit { it.remove(tokenKey) }
+    }
+
+    // Онбординг — пройден ли
+    suspend fun isOnboarded(): Boolean =
+        context.dataStore.data.first()[onboardedKey] ?: false
+
+    suspend fun setOnboarded() {
+        context.dataStore.edit { it[onboardedKey] = true }
     }
 }

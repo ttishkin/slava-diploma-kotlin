@@ -3,6 +3,7 @@ package com.nk.backend.repositories
 import com.nk.backend.db.*
 import com.nk.backend.models.ProductDto
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object ProductRepository {
@@ -94,6 +95,77 @@ object ProductRepository {
 
     fun count(): Int = transaction {
         Products.selectAll().count().toInt()
+    }
+
+    fun create(
+        name: String, categoryId: Int, kcal: Int, protein: Double, fat: Double, carb: Double,
+        grams: Int, price: Int, sostav: String?, benefit: String?,
+        isHit: Boolean, isNovelty: Boolean, imageUrl: String?, tags: List<String>
+    ): Int = transaction {
+        val productId = Products.insert {
+            it[Products.name] = name
+            it[Products.categoryId] = categoryId
+            it[Products.kcal] = kcal
+            it[Products.protein] = protein
+            it[Products.fat] = fat
+            it[Products.carb] = carb
+            it[Products.grams] = grams
+            it[Products.price] = price
+            it[Products.sostav] = sostav
+            it[Products.benefit] = benefit
+            it[Products.isHit] = isHit
+            it[Products.isNovelty] = isNovelty
+            it[Products.imageUrl] = imageUrl
+        } get Products.id
+
+        tags.forEach { tag ->
+            ProductTags.insert {
+                it[ProductTags.productId] = productId
+                it[ProductTags.tag] = tag
+            }
+        }
+
+        productId
+    }
+
+    fun update(
+        id: Int, name: String?, categoryId: Int?, kcal: Int?, protein: Double?, fat: Double?, carb: Double?,
+        grams: Int?, price: Int?, sostav: String?, benefit: String?,
+        isHit: Boolean?, isNovelty: Boolean?, imageUrl: String?, tags: List<String>?
+    ) = transaction {
+        Products.update({ Products.id eq id }) {
+            if (name != null) it[Products.name] = name
+            if (categoryId != null) it[Products.categoryId] = categoryId
+            if (kcal != null) it[Products.kcal] = kcal
+            if (protein != null) it[Products.protein] = protein
+            if (fat != null) it[Products.fat] = fat
+            if (carb != null) it[Products.carb] = carb
+            if (grams != null) it[Products.grams] = grams
+            if (price != null) it[Products.price] = price
+            if (sostav != null) it[Products.sostav] = sostav
+            if (benefit != null) it[Products.benefit] = benefit
+            if (isHit != null) it[Products.isHit] = isHit
+            if (isNovelty != null) it[Products.isNovelty] = isNovelty
+            if (imageUrl != null) it[Products.imageUrl] = imageUrl
+        }
+
+        // Заменяем теги, если переданы
+        if (tags != null) {
+            ProductTags.deleteWhere { ProductTags.productId eq id }
+            tags.forEach { tag ->
+                ProductTags.insert {
+                    it[ProductTags.productId] = id
+                    it[ProductTags.tag] = tag
+                }
+            }
+        }
+    }
+
+    fun delete(id: Int) = transaction {
+        // Удаляем связанные данные
+        ProductTags.deleteWhere { ProductTags.productId eq id }
+        Reviews.deleteWhere { Reviews.productId eq id }
+        Products.deleteWhere { Products.id eq id }
     }
 
     private fun ResultRow.toProductDto(tags: List<String>) = ProductDto(

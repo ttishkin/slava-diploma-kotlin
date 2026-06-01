@@ -18,4 +18,11 @@ sealed class Route(val route: String) {
     }
     data object Orders : Route("orders")
     data object Auth : Route("auth")
+    data object Warehouse : Route("warehouse")
+
+    // Админ-табы
+    data object AdminOrders : Route("admin_orders")
+    data object AdminProducts : Route("admin_products")
+    data object AdminUsers : Route("admin_users")
+    data object AdminCategories : Route("admin_categories")
 }

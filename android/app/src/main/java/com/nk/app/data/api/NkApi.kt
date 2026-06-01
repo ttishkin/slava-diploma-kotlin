@@ -97,4 +97,44 @@ interface NkApi {
 
     @GET("api/notifications")
     suspend fun getNotifications(): List<Notification>
+
+    // === Админ ===
+    @GET("api/admin/orders")
+    suspend fun getAdminOrders(): List<Order>
+
+    @PATCH("api/admin/orders/{id}/status")
+    suspend fun updateOrderStatus(@Path("id") id: Int, @Body req: UpdateStatusRequest): Order
+
+    @DELETE("api/admin/orders/{id}")
+    suspend fun deleteOrder(@Path("id") id: Int): MessageResponse
+
+    @GET("api/admin/stats")
+    suspend fun getAdminStats(): AdminStats
+
+    @GET("api/admin/users")
+    suspend fun getAdminUsers(): List<AdminUser>
+
+    @PATCH("api/admin/users/{id}/role")
+    suspend fun updateUserRole(@Path("id") id: Int, @Body req: UpdateUserRoleRequest): AdminUser
+
+    @DELETE("api/admin/users/{id}")
+    suspend fun deleteUser(@Path("id") id: Int): MessageResponse
+
+    @POST("api/admin/products")
+    suspend fun createProduct(@Body req: CreateProductRequest): Product
+
+    @PATCH("api/admin/products/{id}")
+    suspend fun updateProduct(@Path("id") id: Int, @Body req: CreateProductRequest): Product
+
+    @DELETE("api/admin/products/{id}")
+    suspend fun deleteProduct(@Path("id") id: Int): MessageResponse
+
+    @POST("api/admin/categories")
+    suspend fun createCategory(@Body req: CreateCategoryRequest): Category
+
+    @PATCH("api/admin/categories/{id}")
+    suspend fun updateCategory(@Path("id") id: Int, @Body req: CreateCategoryRequest): Category
+
+    @DELETE("api/admin/categories/{id}")
+    suspend fun deleteCategory(@Path("id") id: Int): MessageResponse
 }

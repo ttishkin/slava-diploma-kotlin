@@ -6,6 +6,7 @@ import com.nk.backend.models.OrderDto
 import com.nk.backend.models.OrderItemDto
 import com.nk.backend.models.StatusCountDto
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -98,6 +99,13 @@ object OrderRepository {
         Orders.update({ Orders.id eq orderId }) {
             it[Orders.status] = status
         }
+    }
+
+    fun delete(id: Int) = transaction {
+        OrderItems.deleteWhere { OrderItems.orderId eq id }
+        BonusTransactions.deleteWhere { BonusTransactions.orderId eq id }
+        Notifications.deleteWhere { Notifications.orderId eq id }
+        Orders.deleteWhere { Orders.id eq id }
     }
 
     fun countByUserId(userId: Int): Int = transaction {

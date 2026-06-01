@@ -43,7 +43,12 @@
       "Bash(chmod +x /Users/mykytatishkin/Desktop/slava-diploma/android/gradlew)",
       "Bash(./gradlew assembleDebug)",
       "Bash(./gradlew assembleDebug --stacktrace)",
-      "Bash(./gradlew assembleDebug --info)"
+      "Bash(./gradlew assembleDebug --info)",
+      "Bash(git rm:*)",
+      "Bash(pip3 show:*)",
+      "Bash(git add:*)",
+      "Bash(git count-objects:*)",
+      "Read(//Users/mykytatishkin/Library/Android/sdk/**)"
     ]
   }
 }

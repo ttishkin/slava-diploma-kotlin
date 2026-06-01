@@ -1,9 +1,10 @@
 package com.nk.backend.repositories
 
-import com.nk.backend.db.Users
+import com.nk.backend.db.*
 import com.nk.backend.models.AdminUserDto
 import com.nk.backend.models.UserDto
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -61,6 +62,32 @@ object UserRepository {
         val newPoints = maxOf(0, current - amount)
         Users.update({ Users.id eq userId }) {
             it[points] = newPoints
+        }
+    }
+
+    fun delete(id: Int) = transaction {
+        // Удаляем связанные данные пользователя
+        DiaryEntries.deleteWhere { DiaryEntries.userId eq id }
+        CartItems.deleteWhere { CartItems.userId eq id }
+        Favorites.deleteWhere { Favorites.userId eq id }
+        BonusTransactions.deleteWhere { BonusTransactions.userId eq id }
+        Addresses.deleteWhere { Addresses.userId eq id }
+        Reviews.deleteWhere { Reviews.userId eq id }
+        // Удаляем позиции заказов и заказы пользователя
+        val orderIds = Orders.selectAll().where { Orders.userId eq id }.map { it[Orders.id] }
+        if (orderIds.isNotEmpty()) {
+            for (oid in orderIds) {
+                OrderItems.deleteWhere { OrderItems.orderId eq oid }
+                Notifications.deleteWhere { Notifications.orderId eq oid }
+            }
+            Orders.deleteWhere { Orders.userId eq id }
+        }
+        Users.deleteWhere { Users.id eq id }
+    }
+
+    fun updateRole(id: Int, role: String) = transaction {
+        Users.update({ Users.id eq id }) {
+            it[Users.role] = role
         }
     }
 

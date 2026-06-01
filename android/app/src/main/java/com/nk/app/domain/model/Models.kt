@@ -245,6 +245,62 @@ data class Notification(
     val createdAt: String
 )
 
+// === Админ ===
+
+@Serializable
+data class AdminStats(
+    val orders: Int,
+    val revenue: Int,
+    val users: Int,
+    val products: Int,
+    val byStatus: List<StatusCount> = emptyList()
+)
+
+@Serializable
+data class StatusCount(val status: String, val count: Int)
+
+@Serializable
+data class UpdateStatusRequest(val status: String)
+
+@Serializable
+data class AdminUser(
+    val id: Int,
+    val email: String,
+    val name: String? = null,
+    val role: String,
+    val points: Int = 0,
+    val createdAt: String = "",
+    val orderCount: Int = 0
+)
+
+@Serializable
+data class CreateProductRequest(
+    val name: String,
+    val categoryId: Int,
+    val kcal: Int,
+    val protein: Double,
+    val fat: Double,
+    val carb: Double,
+    val grams: Int,
+    val price: Int,
+    val sostav: String? = null,
+    val benefit: String? = null,
+    val isHit: Boolean = false,
+    val isNovelty: Boolean = false,
+    val imageUrl: String? = null,
+    val tags: List<String> = emptyList()
+)
+
+@Serializable
+data class CreateCategoryRequest(
+    val name: String,
+    val color: String,
+    val glyph: String
+)
+
+@Serializable
+data class UpdateUserRoleRequest(val role: String)
+
 // === Общие ===
 
 @Serializable
