@@ -1,0 +1,1672 @@
+{
+	"info": {
+		"_postman_id": "nk-api-2026",
+		"name": "Невский Кондитер API",
+		"description": "Полная коллекция API бэкенда «Невский Кондитер — ЗОЖ».\n\n## Быстрый старт\n1. Запустите бэкенд: `cd backend && ./gradlew run`\n2. Выполните папку **0. Подготовка** — токены сохранятся автоматически\n3. Тестируйте любые запросы\n\n## Демо-данные\n- Пользователь: demo@nk.ru / demo1234\n- Админ: admin@nk.ru / admin1234\n- Промокод: ЗОЖ10 (скидка 10%)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "userToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "newUserToken",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "0. Подготовка (запусти первым)",
+			"description": "Логин demo и admin — токены сохраняются в переменные коллекции автоматически.",
+			"item": [
+				{
+					"name": "Логин demo-пользователя",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.collectionVariables.set('userToken', json.token);",
+									"",
+									"pm.test('Логин успешен', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(json.token).to.be.a('string');",
+									"    pm.expect(json.user.email).to.eql('demo@nk.ru');",
+									"});",
+									"",
+									"pm.test('Роль = user', () => {",
+									"    pm.expect(json.user.role).to.eql('user');",
+									"});",
+									"",
+									"pm.test('Бонусы = 250', () => {",
+									"    pm.expect(json.user.points).to.eql(250);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"demo@nk.ru\",\n    \"password\": \"demo1234\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Логин администратора",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.collectionVariables.set('adminToken', json.token);",
+									"",
+									"pm.test('Логин админа успешен', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(json.user.role).to.eql('admin');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@nk.ru\",\n    \"password\": \"admin1234\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "1. Авторизация",
+			"description": "Регистрация, логин, профиль.",
+			"item": [
+				{
+					"name": "Регистрация нового пользователя",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.collectionVariables.set('newUserToken', json.token);",
+									"",
+									"pm.test('Регистрация успешна', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(json.token).to.be.a('string');",
+									"});",
+									"",
+									"pm.test('Калорийная норма рассчитана', () => {",
+									"    pm.expect(json.user.kcalNorm).to.be.above(1000);",
+									"});",
+									"",
+									"pm.test('Приветственные 200 бонусов', () => {",
+									"    pm.expect(json.user.points).to.eql(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"ivan@example.ru\",\n    \"password\": \"password123\",\n    \"name\": \"Иван Петров\",\n    \"sex\": \"male\",\n    \"age\": 28,\n    \"height\": 178,\n    \"weight\": 82,\n    \"activity\": \"moderate\",\n    \"goal\": \"lose\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Логин",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Токен получен', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().token).to.be.a('string');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"demo@nk.ru\",\n    \"password\": \"demo1234\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Мой профиль",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Профиль получен', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.email).to.eql('demo@nk.ru');",
+									"    pm.expect(json.kcalNorm).to.be.above(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "me"]
+						}
+					}
+				},
+				{
+					"name": "Профиль без токена → 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('401 без авторизации', () => {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "me"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Каталог",
+			"description": "Продукты, категории, поиск, фильтры, сортировка.",
+			"item": [
+				{
+					"name": "Все продукты",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Список продуктов', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.be.an('array').with.length.above(20);",
+									"});",
+									"",
+									"pm.test('Продукт содержит КБЖУ', () => {",
+									"    const p = pm.response.json()[0];",
+									"    pm.expect(p).to.have.property('kcal');",
+									"    pm.expect(p).to.have.property('protein');",
+									"    pm.expect(p).to.have.property('fat');",
+									"    pm.expect(p).to.have.property('carb');",
+									"    pm.expect(p).to.have.property('price');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "products"]
+						}
+					}
+				},
+				{
+					"name": "Поиск: crispy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Найдены продукты So crispy', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.length).to.be.above(0);",
+									"    json.forEach(p => pm.expect(p.name.toLowerCase()).to.contain('crispy'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/products?q=crispy",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "products"],
+							"query": [{ "key": "q", "value": "crispy" }]
+						}
+					}
+				},
+				{
+					"name": "Поиск: протеин",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Найдены протеиновые батончики', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().length).to.be.above(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/products?q=PROBATON",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "products"],
+							"query": [{ "key": "q", "value": "PROBATON" }]
+						}
+					}
+				},
+				{
+					"name": "Фильтр: категория 1 (Злаковые)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Только злаковые батончики', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.length).to.be.above(0);",
+									"    json.forEach(p => pm.expect(p.categoryName).to.eql('Злаковые батончики'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/products?category=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "products"],
+							"query": [{ "key": "category", "value": "1" }]
+						}
+					}
+				},
+				{
+					"name": "Фильтр: тег nut (ореховые)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Продукты с тегом nut', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.length).to.be.above(0);",
+									"    json.forEach(p => pm.expect(p.tags).to.include('nut'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/products?tag=nut",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "products"],
+							"query": [{ "key": "tag", "value": "nut" }]
+						}
+					}
+				},
+				{
+					"name": "Сортировка: цена по возрастанию",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Цены отсортированы по возрастанию', () => {",
+									"    const prices = pm.response.json().map(p => p.price);",
+									"    for (let i = 1; i < prices.length; i++) {",
+									"        pm.expect(prices[i]).to.be.at.least(prices[i-1]);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/products?sort=price_asc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "products"],
+							"query": [{ "key": "sort", "value": "price_asc" }]
+						}
+					}
+				},
+				{
+					"name": "Сортировка: калории по возрастанию",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Калории отсортированы', () => {",
+									"    const kcals = pm.response.json().map(p => p.kcal);",
+									"    for (let i = 1; i < kcals.length; i++) {",
+									"        pm.expect(kcals[i]).to.be.at.least(kcals[i-1]);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/products?sort=kcal_asc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "products"],
+							"query": [{ "key": "sort", "value": "kcal_asc" }]
+						}
+					}
+				},
+				{
+					"name": "Карточка продукта (id=1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Продукт с отзывами', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const p = pm.response.json();",
+									"    pm.expect(p.name).to.be.a('string');",
+									"    pm.expect(p).to.have.property('reviews');",
+									"    pm.expect(p).to.have.property('sostav');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/products/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "products", "1"]
+						}
+					}
+				},
+				{
+					"name": "Все категории",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('6 категорий', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.have.length(6);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categories"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Корзина",
+			"description": "Добавление товаров в корзину и просмотр.",
+			"item": [
+				{
+					"name": "Обновить корзину",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Корзина обновлена', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const items = pm.response.json();",
+									"    pm.expect(items).to.have.length(3);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        { \"productId\": 1, \"qty\": 3 },\n        { \"productId\": 12, \"qty\": 2 },\n        { \"productId\": 16, \"qty\": 1 }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cart",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cart"]
+						}
+					}
+				},
+				{
+					"name": "Получить корзину",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Корзина содержит 3 позиции', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.have.length(3);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/cart",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cart"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Избранное",
+			"item": [
+				{
+					"name": "Обновить избранное",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Избранное сохранено', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().productIds).to.eql([1, 5, 12, 16]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productIds\": [1, 5, 12, 16]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/favorites",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "favorites"]
+						}
+					}
+				},
+				{
+					"name": "Получить избранное",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('4 товара в избранном', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().productIds).to.have.length(4);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/favorites",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "favorites"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Отзывы",
+			"item": [
+				{
+					"name": "Оставить отзыв (авторизован)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Отзыв создан с userId', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const r = pm.response.json();",
+									"    pm.expect(r.userId).to.be.a('number');",
+									"    pm.expect(r.author).to.be.a('string');",
+									"    pm.expect(r.rating).to.eql(5);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": 1,\n    \"rating\": 5,\n    \"text\": \"Очень вкусный батончик, хрустящий и сладкий в меру! Беру каждую неделю.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/reviews",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "reviews"]
+						}
+					}
+				},
+				{
+					"name": "Оставить отзыв (гость)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Анонимный отзыв создан', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const r = pm.response.json();",
+									"    pm.expect(r.userId).to.be.null;",
+									"    pm.expect(r.author).to.eql('Анна К.');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": 12,\n    \"rating\": 4,\n    \"text\": \"Хороший ореховый батончик, но чуть суховат.\",\n    \"author\": \"Анна К.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/reviews",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "reviews"]
+						}
+					}
+				},
+				{
+					"name": "Отзывы продукта",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Список отзывов', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/products/1/reviews",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "products", "1", "reviews"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Заказы и бонусы",
+			"description": "Оформление заказа с промокодом и бонусами, история.",
+			"item": [
+				{
+					"name": "Бонусы до заказа",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Баланс 250 бонусов', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().balance).to.eql(250);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/bonuses",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "bonuses"]
+						}
+					}
+				},
+				{
+					"name": "Создать заказ (промо ЗОЖ10 + 100 бонусов)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Заказ создан', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const o = pm.response.json();",
+									"    pm.expect(o.status).to.eql('new');",
+									"    pm.expect(o.no).to.match(/^NK-/);",
+									"});",
+									"",
+									"pm.test('Промокод ЗОЖ10 применён', () => {",
+									"    pm.expect(pm.response.json().promoCode).to.eql('ЗОЖ10');",
+									"});",
+									"",
+									"pm.test('Бонусы списаны', () => {",
+									"    pm.expect(pm.response.json().bonusSpent).to.be.above(0);",
+									"});",
+									"",
+									"pm.test('Кэшбэк 5% начислен', () => {",
+									"    pm.expect(pm.response.json().bonusEarned).to.be.above(0);",
+									"});",
+									"",
+									"pm.test('Бесплатная доставка от 1000₽', () => {",
+									"    const o = pm.response.json();",
+									"    // subtotal = 3*65 + 2*95 + 1*120 = 505",
+									"    // < 1000, значит delivery = 199",
+									"    pm.expect(o.delivery).to.eql(199);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        { \"productId\": 1, \"qty\": 3 },\n        { \"productId\": 12, \"qty\": 2 },\n        { \"productId\": 16, \"qty\": 1 }\n    ],\n    \"promoCode\": \"ЗОЖ10\",\n    \"bonusSpend\": 100,\n    \"addressId\": null\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Создать крупный заказ (бесплатная доставка)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Доставка бесплатна', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().delivery).to.eql(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        { \"productId\": 12, \"qty\": 5 },\n        { \"productId\": 16, \"qty\": 5 }\n    ],\n    \"bonusSpend\": 0\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Мои заказы",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Есть заказы', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().length).to.be.above(0);",
+									"});",
+									"",
+									"pm.test('Заказ содержит позиции', () => {",
+									"    const order = pm.response.json()[0];",
+									"    pm.expect(order.items).to.be.an('array').with.length.above(0);",
+									"    pm.expect(order.items[0]).to.have.property('productName');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Бонусы после заказов",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Бонусные транзакции', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const b = pm.response.json();",
+									"    pm.expect(b.transactions.length).to.be.above(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/bonuses",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "bonuses"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Дневник питания",
+			"description": "КБЖУ-трекер: добавление, редактирование, удаление записей.",
+			"item": [
+				{
+					"name": "Добавить продукт из каталога",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Запись создана', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const e = pm.response.json();",
+									"    pm.expect(e.productId).to.eql(1);",
+									"    pm.expect(e.kcal).to.be.above(0);",
+									"    pm.expect(e.day).to.eql('2026-06-01');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": 1,\n    \"qty\": 2,\n    \"meal\": \"breakfast\",\n    \"day\": \"2026-06-01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/diary",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "diary"]
+						}
+					}
+				},
+				{
+					"name": "Добавить кастомную еду",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Кастомная запись', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const e = pm.response.json();",
+									"    pm.expect(e.name).to.eql('Овсянка с мёдом');",
+									"    pm.expect(e.kcal).to.eql(350);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Овсянка с мёдом\",\n    \"qty\": 1,\n    \"grams\": 250,\n    \"kcal\": 350,\n    \"meal\": \"breakfast\",\n    \"day\": \"2026-06-01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/diary",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "diary"]
+						}
+					}
+				},
+				{
+					"name": "Дневник за день",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Записи за день', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const entries = pm.response.json();",
+									"    pm.expect(entries.length).to.be.above(0);",
+									"});",
+									"",
+									"pm.test('Суммарные калории > 0', () => {",
+									"    const total = pm.response.json().reduce((s, e) => s + e.kcal, 0);",
+									"    pm.expect(total).to.be.above(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/diary?day=2026-06-01",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "diary"],
+							"query": [{ "key": "day", "value": "2026-06-01" }]
+						}
+					}
+				},
+				{
+					"name": "Изменить количество",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Количество обновлено', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().qty).to.eql(4);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"qty\": 4\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/diary/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "diary", "1"]
+						}
+					}
+				},
+				{
+					"name": "Удалить запись",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Запись удалена', () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/diary/2",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "diary", "2"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "8. Адреса и доставка",
+			"item": [
+				{
+					"name": "Добавить адрес",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Адрес создан', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const a = pm.response.json();",
+									"    pm.expect(a.address).to.contain('Невский');",
+									"    pm.expect(a.isPickup).to.be.false;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"label\": \"Дом\",\n    \"address\": \"Санкт-Петербург, Невский пр., 25, кв. 10\",\n    \"lat\": 59.935,\n    \"lng\": 30.327\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/addresses",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "addresses"]
+						}
+					}
+				},
+				{
+					"name": "Добавить адрес (работа)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Второй адрес создан', () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"label\": \"Работа\",\n    \"address\": \"Санкт-Петербург, Лиговский пр., 87\",\n    \"lat\": 59.919,\n    \"lng\": 30.355\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/addresses",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "addresses"]
+						}
+					}
+				},
+				{
+					"name": "Мои адреса",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('2 адреса', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().length).to.eql(2);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/addresses",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "addresses"]
+						}
+					}
+				},
+				{
+					"name": "Пункты самовывоза",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('2 пункта самовывоза', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.have.length(2);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/pickup-points",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "pickup-points"]
+						}
+					}
+				},
+				{
+					"name": "Удалить адрес",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Адрес удалён', () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/addresses/2",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "addresses", "2"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Промокоды и уведомления",
+			"item": [
+				{
+					"name": "Проверить промокод ЗОЖ10 (валидный)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Промокод валиден, скидка 10%', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const p = pm.response.json();",
+									"    pm.expect(p.valid).to.be.true;",
+									"    pm.expect(p.discountPercent).to.eql(10);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/promo/ЗОЖ10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "promo", "ЗОЖ10"]
+						}
+					}
+				},
+				{
+					"name": "Проверить промокод НЕСУЩЕСТВУЕТ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Промокод невалиден', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().valid).to.be.false;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/promo/INVALID",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "promo", "INVALID"]
+						}
+					}
+				},
+				{
+					"name": "Уведомления",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Список уведомлений', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/notifications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notifications"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "10. Админ-панель",
+			"description": "Эндпоинты для администратора (требуется admin-токен).",
+			"item": [
+				{
+					"name": "Статистика",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статистика получена', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const s = pm.response.json();",
+									"    pm.expect(s).to.have.property('orders');",
+									"    pm.expect(s).to.have.property('revenue');",
+									"    pm.expect(s).to.have.property('users');",
+									"    pm.expect(s).to.have.property('products');",
+									"    pm.expect(s).to.have.property('byStatus');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "stats"]
+						}
+					}
+				},
+				{
+					"name": "Все заказы",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Заказы с email', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const orders = pm.response.json();",
+									"    pm.expect(orders).to.be.an('array');",
+									"    if (orders.length > 0) {",
+									"        pm.expect(orders[0]).to.have.property('userEmail');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Изменить статус заказа → processing",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус обновлён', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().status).to.eql('processing');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"processing\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/orders/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "orders", "1", "status"]
+						}
+					}
+				},
+				{
+					"name": "Изменить статус → shipped",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус shipped', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().status).to.eql('shipped');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"shipped\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/orders/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "orders", "1", "status"]
+						}
+					}
+				},
+				{
+					"name": "Изменить статус → delivered",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Статус delivered', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().status).to.eql('delivered');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"delivered\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/orders/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "orders", "1", "status"]
+						}
+					}
+				},
+				{
+					"name": "Все пользователи",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Список пользователей', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const users = pm.response.json();",
+									"    pm.expect(users.length).to.be.above(1);",
+									"    pm.expect(users[0]).to.have.property('orderCount');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "users"]
+						}
+					}
+				},
+				{
+					"name": "Детали пользователя (id=2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Детали пользователя', () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/users/2",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "users", "2"]
+						}
+					}
+				},
+				{
+					"name": "Продажи за 30 дней",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Данные продаж', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/sales?days=30",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "sales"],
+							"query": [{ "key": "days", "value": "30" }]
+						}
+					}
+				},
+				{
+					"name": "Все уведомления",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Список уведомлений', () => {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/notifications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "notifications"]
+						}
+					}
+				},
+				{
+					"name": "Админ без токена → 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('401 без токена', () => {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "stats"]
+						}
+					}
+				},
+				{
+					"name": "Админ с user-токеном → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('403 для не-админа', () => {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{userToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "stats"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
