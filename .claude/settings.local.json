@@ -42,7 +42,8 @@
       "Bash(python3 -c \"import sys,json; print\\(f'Категорий: {len\\(json.load\\(sys.stdin\\)\\)}'\\)\")",
       "Bash(chmod +x /Users/mykytatishkin/Desktop/slava-diploma/android/gradlew)",
       "Bash(./gradlew assembleDebug)",
-      "Bash(./gradlew assembleDebug --stacktrace)"
+      "Bash(./gradlew assembleDebug --stacktrace)",
+      "Bash(./gradlew assembleDebug --info)"
     ]
   }
 }
