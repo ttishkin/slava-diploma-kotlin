@@ -24,7 +24,7 @@ fun Route.diaryRoutes() {
 
             post {
                 val req = call.receive<CreateDiaryEntryRequest>()
-                val day = LocalDate.now().toString()
+                val day = req.day ?: LocalDate.now().toString()
 
                 // Определяем название, граммы и калории
                 val name: String

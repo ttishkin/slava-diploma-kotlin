@@ -9,6 +9,21 @@ import org.mindrot.jbcrypt.BCrypt
 
 object AuthService {
 
+    // Маппинг строковых уровней активности в коэффициенты
+    private fun activityToMultiplier(activity: String?): Double? {
+        if (activity == null) return null
+        // Если передали число — используем как есть
+        activity.toDoubleOrNull()?.let { return it }
+        return when (activity.lowercase()) {
+            "sedentary" -> 1.2
+            "light" -> 1.375
+            "moderate" -> 1.55
+            "active" -> 1.725
+            "very_active", "extra" -> 1.9
+            else -> 1.375
+        }
+    }
+
     fun register(req: RegisterRequest): AuthResponse {
         // Валидация
         if (req.email.isBlank() || !req.email.contains("@") || !req.email.contains("."))
@@ -20,8 +35,10 @@ object AuthService {
         if (UserRepository.findByEmail(req.email) != null)
             badRequest("Пользователь с таким email уже зарегистрирован")
 
+        val activityMultiplier = activityToMultiplier(req.activity)
+
         // Расчёт калорийной нормы
-        val kcalNorm = calculateKcalNorm(req.sex, req.age, req.height, req.weight, req.activity, req.goal)
+        val kcalNorm = calculateKcalNorm(req.sex, req.age, req.height, req.weight, activityMultiplier, req.goal)
 
         // Хешируем пароль
         val hash = BCrypt.hashpw(req.password, BCrypt.gensalt(10))
@@ -34,7 +51,7 @@ object AuthService {
             age = req.age,
             height = req.height,
             weight = req.weight,
-            activity = req.activity,
+            activity = activityMultiplier,
             goal = req.goal,
             kcalNorm = kcalNorm
         )

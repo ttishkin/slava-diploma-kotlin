@@ -20,7 +20,7 @@ fun Route.cartRoutes() {
                 val req = call.receive<CartRequest>()
                 CartRepository.replaceAll(
                     call.userId(),
-                    req.items.map { it.id to it.qty }
+                    req.items.map { it.productId to it.qty }
                 )
                 val items = CartRepository.findByUserId(call.userId())
                 call.respond(items)

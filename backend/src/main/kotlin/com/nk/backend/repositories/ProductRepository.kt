@@ -24,9 +24,14 @@ object ProductRepository {
             }
         }
 
-        // Фильтр по категории
+        // Фильтр по категории (принимаем ID или имя)
         if (!category.isNullOrBlank()) {
-            baseQuery.andWhere { Categories.name eq category }
+            val categoryInt = category.toIntOrNull()
+            if (categoryInt != null) {
+                baseQuery.andWhere { Products.categoryId eq categoryInt }
+            } else {
+                baseQuery.andWhere { Categories.name eq category }
+            }
         }
 
         // Фильтр по тегу
@@ -39,9 +44,10 @@ object ProductRepository {
 
         // Сортировка
         when (sort) {
-            "priceA" -> baseQuery.orderBy(Products.price to SortOrder.ASC)
-            "priceD" -> baseQuery.orderBy(Products.price to SortOrder.DESC)
-            "kcalA" -> baseQuery.orderBy(Products.kcal to SortOrder.ASC)
+            "priceA", "price_asc" -> baseQuery.orderBy(Products.price to SortOrder.ASC)
+            "priceD", "price_desc" -> baseQuery.orderBy(Products.price to SortOrder.DESC)
+            "kcalA", "kcal_asc" -> baseQuery.orderBy(Products.kcal to SortOrder.ASC)
+            "kcalD", "kcal_desc" -> baseQuery.orderBy(Products.kcal to SortOrder.DESC)
             else -> baseQuery.orderBy(Products.id to SortOrder.ASC)
         }
 

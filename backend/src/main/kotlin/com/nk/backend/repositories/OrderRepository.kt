@@ -55,6 +55,7 @@ object OrderRepository {
 
         OrderDto(
             id = orderId,
+            userId = userId,
             no = orderNo,
             total = total,
             delivery = delivery,
@@ -158,6 +159,7 @@ object OrderRepository {
 
         return OrderDto(
             id = orderId,
+            userId = this[Orders.userId],
             no = this[Orders.no],
             total = this[Orders.total],
             delivery = this[Orders.delivery],

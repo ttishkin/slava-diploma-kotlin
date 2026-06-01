@@ -15,10 +15,10 @@ object OrderService {
         var subtotal = 0
         val resolvedItems = req.items.map { item ->
             if (item.qty < 1) badRequest("Количество должно быть >= 1")
-            val price = ProductRepository.getPriceById(item.id)
-                ?: badRequest("Продукт с id=${item.id} не найден")
+            val price = ProductRepository.getPriceById(item.productId)
+                ?: badRequest("Продукт с id=${item.productId} не найден")
             subtotal += price * item.qty
-            item.id to (item.qty to price)
+            item.productId to (item.qty to price)
         }
 
         // Доставка
@@ -89,7 +89,7 @@ object OrderService {
         val order = OrderRepository.findById(orderId) ?: notFound("Заказ не найден")
 
         // Уведомление
-        val user = UserRepository.findById(order.id)
+        val user = order.userId?.let { UserRepository.findById(it) }
         NotificationRepository.create(
             orderId = orderId,
             email = user?.email,

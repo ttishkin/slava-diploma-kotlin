@@ -13,13 +13,13 @@ fun Route.favoriteRoutes() {
         route("/api/favorites") {
             get {
                 val ids = FavoriteRepository.findByUserId(call.userId())
-                call.respond(mapOf("ids" to ids))
+                call.respond(mapOf("productIds" to ids))
             }
 
             put {
                 val req = call.receive<FavoritesRequest>()
-                FavoriteRepository.replaceAll(call.userId(), req.ids)
-                call.respond(mapOf("ids" to req.ids))
+                FavoriteRepository.replaceAll(call.userId(), req.productIds)
+                call.respond(mapOf("productIds" to req.productIds))
             }
         }
     }

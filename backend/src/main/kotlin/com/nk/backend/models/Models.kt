@@ -13,7 +13,7 @@ data class RegisterRequest(
     val age: Int? = null,
     val height: Int? = null,
     val weight: Int? = null,
-    val activity: Double? = null,
+    val activity: String? = null,
     val goal: String? = null
 )
 
@@ -90,13 +90,14 @@ data class CreateOrderRequest(
 
 @Serializable
 data class OrderItemRequest(
-    val id: Int,
+    val productId: Int,
     val qty: Int
 )
 
 @Serializable
 data class OrderDto(
     val id: Int,
+    val userId: Int? = null,
     val no: String,
     val total: Int,
     val delivery: Int,
@@ -170,7 +171,8 @@ data class CreateDiaryEntryRequest(
     val qty: Int = 1,
     val grams: Int? = null,
     val kcal: Int? = null,
-    val meal: String = "Перекус"
+    val meal: String = "Перекус",
+    val day: String? = null
 )
 
 @Serializable
@@ -231,7 +233,7 @@ data class CartRequest(
 
 @Serializable
 data class CartItemRequest(
-    val id: Int,
+    val productId: Int,
     val qty: Int
 )
 
@@ -245,7 +247,7 @@ data class CartItemDto(
 
 @Serializable
 data class FavoritesRequest(
-    val ids: List<Int>
+    val productIds: List<Int>
 )
 
 // === Промокод ===

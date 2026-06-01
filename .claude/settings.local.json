@@ -35,7 +35,9 @@
       "Bash(curl -s http://localhost:8080/api/products/1/reviews)",
       "Bash(curl -s http://localhost:8080/api/pickup-points)",
       "Bash(curl -s \"http://localhost:8080/api/promo/%D0%97%D0%9E%D0%9616\")",
-      "Bash(curl -s \"http://localhost:8080/api/promo/%D0%97%D0%9E%D0%9610\")"
+      "Bash(curl -s \"http://localhost:8080/api/promo/%D0%97%D0%9E%D0%9610\")",
+      "Bash(pkill -f \"gradlew.*run\")",
+      "Bash(pkill -f \"com.nk.backend\")"
     ]
   }
 }
